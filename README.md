@@ -1,34 +1,36 @@
+# Data Cleaning with RapidMiner
+
+## Project Overview
+This project demonstrates the use of **RapidMiner** and **Python** for cleaning and preparing donor data for analysis.  
+The dataset includes duplicates, missing values, and inconsistent date formats.  
+The goal is to improve **data accuracy** and make the dataset ready for reporting and dashboards.  
+
+## Tools & Technologies
+- **RapidMiner** – for data cleaning workflows  
+- **Python (Pandas)** – for additional checks and validation  
+- **Excel / Power BI** – for visualization  
+
+## Data Cleaning Steps
+1. Imported raw donor dataset (`donors_raw.csv`) into RapidMiner.  
+2. Removed duplicates using *Remove Duplicates* operator.  
+3. Replaced missing values with placeholders or median values.  
+4. Standardized inconsistent date formats.  
+5. Exported cleaned dataset (`donors_clean.csv`).  
+6. Validated results in Python.  
+
+## Validate via Python
 import pandas as pd
 
-# Load raw dataset
+# Load raw and cleaned datasets
 raw = pd.read_csv("donors_raw.csv")
+clean = pd.read_csv("donors_clean.csv")
 
-print("---- RAW DATASET INFO ----")
-print("Total Rows:", len(raw))
-print("Duplicate Records:", raw.duplicated().sum())
-print("Missing Values:\n", raw.isnull().sum())
-print("\nSample Raw Data:\n", raw.head())
+# Check duplicates in raw data
+print("Raw duplicates:", raw.duplicated().sum())
 
-# Step 1: Remove duplicates (based on Donor_ID or full row)
-clean = raw.drop_duplicates(subset=["Donor_ID"])
+# Check missing values before cleaning
+print("Raw missing values:\n", raw.isnull().sum())
 
-# Step 2: Handle missing donor names
-clean["Donor_Name"] = clean["Donor_Name"].fillna("Unknown")
-
-# Step 3: Handle missing contribution amounts (replace with median)
-median_amount = clean["Contribution_Amount"].median()
-clean["Contribution_Amount"] = clean["Contribution_Amount"].fillna(median_amount)
-
-# Step 4: Standardize date format to YYYY-MM-DD
-clean["Donation_Date"] = pd.to_datetime(clean["Donation_Date"], errors="coerce").dt.strftime("%Y-%m-%d")
-
-# Save cleaned dataset
-clean.to_csv("donors_clean.csv", index=False)
-
-print("\n---- CLEANED DATASET INFO ----")
-print("Total Rows:", len(clean))
-print("Duplicate Records:", clean.duplicated().sum())
-print("Missing Values:\n", clean.isnull().sum())
-print("\nSample Clean Data:\n", clean.head())
-
-print("\n✅ Data cleaning completed! Cleaned dataset saved as 'donors_clean.csv'")
+# Confirm cleaned dataset integrity
+print("Clean duplicates:", clean.duplicated().sum())
+print("Clean missing values:\n", clean.isnull().sum())
