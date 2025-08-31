@@ -1,63 +1,34 @@
-# Data-Cleaning-with-RapidMiner
-## 📌 Project Overview
-This project demonstrates the use of **RapidMiner** for cleaning and preparing donor data for analysis.  
-The dataset simulates donor records with duplicates, missing values, and inconsistent entries.  
-The goal was to improve **data quality** by removing duplicates, handling missing entries, and producing a clean dataset ready for reporting.
+import pandas as pd
 
----
+# Load raw dataset
+raw = pd.read_csv("donors_raw.csv")
 
-## 🛠️ Tools & Technologies
-- **RapidMiner** – for data cleaning, preprocessing, and transformations  
-- **CSV Files** – sample donor dataset (before and after cleaning)  
-- **Excel/Power BI** – optional visualization of results  
+print("---- RAW DATASET INFO ----")
+print("Total Rows:", len(raw))
+print("Duplicate Records:", raw.duplicated().sum())
+print("Missing Values:\n", raw.isnull().sum())
+print("\nSample Raw Data:\n", raw.head())
 
----
+# Step 1: Remove duplicates (based on Donor_ID or full row)
+clean = raw.drop_duplicates(subset=["Donor_ID"])
 
-## 🗂️ Dataset
-- `donors_raw.csv` → Sample donor dataset with duplicates and missing values  
-- `donors_clean.csv` → Cleaned dataset after processing in RapidMiner  
+# Step 2: Handle missing donor names
+clean["Donor_Name"] = clean["Donor_Name"].fillna("Unknown")
 
----
+# Step 3: Handle missing contribution amounts (replace with median)
+median_amount = clean["Contribution_Amount"].median()
+clean["Contribution_Amount"] = clean["Contribution_Amount"].fillna(median_amount)
 
-## 🔑 Data Cleaning Steps
-1. **Import Dataset**  
-   - Loaded `donors_raw.csv` into RapidMiner.  
+# Step 4: Standardize date format to YYYY-MM-DD
+clean["Donation_Date"] = pd.to_datetime(clean["Donation_Date"], errors="coerce").dt.strftime("%Y-%m-%d")
 
-2. **Removed Duplicates**  
-   - Applied the *Remove Duplicates* operator to eliminate redundant donor records.  
+# Save cleaned dataset
+clean.to_csv("donors_clean.csv", index=False)
 
-3. **Handled Missing Values**  
-   - Used the *Replace Missing Values* operator.  
-   - Filled missing donor names with “Unknown” and replaced missing contribution amounts with median values.  
+print("\n---- CLEANED DATASET INFO ----")
+print("Total Rows:", len(clean))
+print("Duplicate Records:", clean.duplicated().sum())
+print("Missing Values:\n", clean.isnull().sum())
+print("\nSample Clean Data:\n", clean.head())
 
-4. **Standardized Formats**  
-   - Cleaned inconsistent date formats (DD/MM/YYYY → YYYY-MM-DD).  
-   - Normalized text fields (e.g., capitalization of donor names).  
-
-5. **Export Cleaned Data**  
-   - Saved the output as `donors_clean.csv` for analysis and reporting.  
-
----
-
-## 📊 Impact
-- Improved dataset accuracy by **removing 100% of duplicate records**.  
-- Reduced missing values by **95%** through structured imputation.  
-- Delivered a clean dataset that can be directly used for **analysis, dashboards, and reporting**.  
-
----
-
-## 🚀 How to Reproduce
-1. Open **RapidMiner Studio**.  
-2. Import the `donors_raw.csv` file.  
-3. Apply operators for:  
-   - Remove Duplicates  
-   - Replace Missing Values  
-   - Format Normalization  
-4. Export the cleaned dataset as `donors_clean.csv`.  
-5. (Optional) Use **Excel or Power BI** to create summary dashboards for donor contributions.  
-
----
-
-## 📌 Key Takeaway
-Clean, reliable data is the foundation of any meaningful analysis.  
-This project highlights how **RapidMiner** can automate data cleaning processes and improve dataset quality for better decision-making.
+print("\n✅ Data cleaning completed! Cleaned dataset saved as 'donors_clean.csv'")
